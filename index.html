@@ -1,0 +1,93 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Brand</title>
+    <!-- material icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <title>Home</title>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col m12">
+                <h1>Path Finder</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col m12">
+                <!-- maze -->
+                <div id="maze">
+                    <!-- canvas area -->
+                    <canvas id="canvas" width="600" height="600"></canvas>
+                </div>
+            </div>
+        </div>
+        <!-- buttons -->
+        <div class="row">
+            <div class="col m12">
+                <button id="generate" class="btn waves-effect waves-light" type="button" name="action">Generate
+                    <i class="material-icons right">send</i>
+                </button>
+                <button id="solve" class="btn waves-effect waves-light" type="button" name="action">Solve
+                    <i class="material-icons right">send</i>
+                </button>
+            </div>
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+        <script type="module">
+            import MazeBuilder from './mazeBuilder.js';
+            import MazeRenderer from './mazeRenderer.js';
+            import MazeSolver from './mazeSolver.js';
+        
+            const generateButton = document.getElementById('generate');
+            const solveButton = document.getElementById('solve');
+            const canvas = document.getElementById('canvas');
+            let state = {
+                maze: null,
+                start: null,
+                end: null,
+            };
+
+            const mazeBuilder = new MazeBuilder(canvas.clientWidth, canvas.clientHeight, 20);
+            const mazeRenderer = new MazeRenderer(canvas);
+
+
+            // buttons
+            generateButton.addEventListener('click', function () {
+                state = mazeBuilder.build(3);
+                
+               
+                mazeRenderer.draw(state);
+            });
+
+            solveButton.addEventListener('click', function () {
+                const mazeSolver = new MazeSolver(state);
+                requestAnimationFrame(() => {
+                    gameLoop(mazeSolver);
+                });
+            });
+
+
+            function gameLoop(mazeSolver) {
+                const state = mazeSolver.solve();
+                try {
+                    mazeRenderer.draw(state);
+
+                    if ((state.end.x != state.current.x || state.end.y != state.current.y) && !state.impossible) {
+                        requestAnimationFrame(() => {
+                            gameLoop(mazeSolver);
+                        });
+                    }
+                } catch (e) {
+                    console.log(e);
+                }
+            }
+
+        </script>
+</body>
+
+</html>
